@@ -300,6 +300,11 @@
 						temp = temp.next;
 					}
 
+					if (current.next == null) {
+						previous.next = null;
+						return;
+					}
+					
 					previous.next = current.next;
 					current.next.previous = previous;
 
