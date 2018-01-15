@@ -1,0 +1,449 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title></title>
+
+	<!-- Jquery -->
+	<script type="text/javascript" src="js/jquery-3.2.1.min.js"></script>
+
+	<!-- Bootstrap -->
+	<link rel="stylesheet" type="text/css" href="frameworks/bootstrap-3.3.7-dist/css/bootstrap.min.css">
+</head> 
+<body>
+	<div class="container" id="container">
+		<h1>Linked List (Doubly)</h1>
+		<div class="row" id="items"></div>
+	</div>
+	
+	<div class="controller">
+		<button id="reset">Re Render</button>
+	</div>
+	<style type="text/css">
+
+		#container {
+			position: relative;
+		}
+
+		#current-data {
+			color: blue;
+		}
+
+		#next-data {
+			color: red;
+		}
+
+		#previous-data {
+			color: #ff9a03;
+		}
+
+		.item {
+			height: 400px;
+		}
+
+		.line-container {
+			width: 272px;
+
+			margin: 18px auto;
+		}
+
+		.line-link {
+			width: 24px;
+			height: 224px;
+
+			margin: 18px 56px;
+
+			display: block;
+			background: black;
+
+			float: left;
+			position: relative;
+		}
+
+		.arrow-down {
+		  left: -28px;
+		  top: 224px;
+
+		  width: 0; 
+		  height: 0; 
+		  border-left: 40px solid transparent;
+		  border-right: 40px solid transparent;
+		  
+		  border-top: 40px solid red;
+
+		  position: absolute;
+		}
+
+		.arrow-up {
+		  left: -28px;
+		  top: -40px;
+
+		  width: 0; 
+		  height: 0; 
+		  border-left: 40px solid transparent;
+		  border-right: 40px solid transparent;
+		  
+		  border-bottom: 40px solid #ff9a03;
+		  position: absolute;
+
+		}
+
+		#up {
+			background: #ff9a03;
+		}
+
+		#down {
+			background: red;
+		}
+
+		.controller {
+			top: 0;
+			right: 0;
+			padding: 36px;
+
+			position: fixed;
+		}
+
+		.controller #reset {
+			background: #b70000;
+			color: white;
+			border: 2px solid black;
+			padding: 12px;
+		}
+	</style>
+	<script type="text/javascript">
+		$(document).ready(function () {
+
+			/**
+			 * TODO:
+			 * implement:
+			 * addFirst
+			 * addLast
+			 * addBefore (node)
+			 * addAfter (node)
+			 * delete / remove
+			 */
+			var doublyLinkedList = {
+				head: null,
+
+				/**
+				 * Add the node to the first item
+				 * on the linked list
+				 *
+				 * @param Object node
+				 * @return void
+				 */
+				addFirst: function (node) {
+					if (this.head == null) {
+						this.head = node;
+						return;
+					}
+
+					node.next = this.head;
+
+					this.head.previous = node;
+					this.head = this.head.next;
+
+					node.previous = null;
+					this.head = node;
+				},
+
+				/**
+				 * Add the node to the last item
+				 * on the linked list
+				 *
+				 * @param Object node
+				 * @return void
+				 */
+				addLast: function (node) {
+					if (this.head == null) {
+						this.head = node;
+						return;
+					}
+
+					var current = new Object(this.head);
+					while (current != null && current.next != null) {
+						current = current.next;
+					}
+
+					node.previous = current;
+					current.next = node;
+				},
+
+				/**
+				 * Add the node before a given node
+				 * onto the linked list
+				 *
+				 * @param Object key
+				 * @param Object node
+				 *
+				 * @return void
+				 */
+				addBefore: function (key, node) {
+					if (this.head == null) {
+						return;
+					}
+
+					// Check if we are adding before head
+					if (this.head.data == key.data) {
+						node.next = this.head;
+
+						this.head.previous = node;
+						this.head = this.head.next;
+
+						this.head = node;
+						return;
+					}
+
+					// Find out if the node exists on the linked list or not
+					var current = new Object(this.head);
+					while (current != null && current.data != key.data) {
+						current = current.next;
+					}
+
+					if (current == null) {
+						throw "The given node does not exist on the list.";
+					}
+
+					var temp = new Object(this.head);
+					var previous = null;
+
+					while (temp != null && temp.data != current.data) {
+						previous = temp;
+						temp = temp.next;
+					}
+
+					node.previous = previous;
+					
+					current.previous = node;
+					previous.next = node;
+
+					node.next = current;
+				},
+
+				/**
+				 * Add the node after a given node
+				 * onto the linked list
+				 *
+				 * @param Object key
+				 * @param Object node
+				 *
+				 * @return void
+				 */
+				addAfter: function (key, node) {
+					if (this.head == null) {
+						return;
+					}
+
+					// Check if the key is head
+					if (key.data == this.head.data) {
+
+						this.head.previous = node;
+
+						node.next = this.head;
+						this.head = this.head.next;
+
+						node.previous = null;
+						this.head = node;
+						return;
+					}
+
+					// Search for key
+					var current = new Object(this.head);
+					while (current != null && current.data != key.data) {
+						current = current.next;
+					}
+
+					if (current == null) {
+						throw "The given node does not exist on the list.";
+					}
+
+					node.previous = current;
+					node.next = current.next;
+					current.next = node;
+				},
+
+				/**
+				 * Remove a given node from
+				 * the linked list
+				 *
+				 * @param Object node
+				 * @return void
+				 */
+				remove: function (node) {
+					if (this.head == null) {
+						return;
+					}
+
+					// Check if the node is the head
+					if (this.head.data == node.data) {
+						this.head = this.head.next;
+						this.head.previous = null;
+
+						return;
+					}
+
+					// Search for the node
+					var current = new Object(this.head);
+					while (current != null && current.data != node.data) {
+						current = current.next;
+					}
+
+					if (current == null) {
+						throw "The given node does not exist on the list.";
+					}
+
+					var temp = new Object(this.head);
+					var previous = null;
+
+					while (temp != null && temp.data != current.data) {
+						previous = temp;
+						temp = temp.next;
+					}
+
+					previous.next = current.next;
+					current.next.previous = previous;
+
+				},
+
+				/**
+				 * Output the linked list
+				 * @return void
+				 */
+				traverse: function () {
+					var temp = new Object(this.head);
+
+					while (temp != null) {
+						console.log(temp);
+						temp = temp.next;
+					}
+				}
+			};
+
+			var renderer = {
+				head: null,
+				template: function (node) {
+
+					if (node.next != null && node.previous != null) {
+						return '<div class="col-lg-12 col-md-12 col-sm-12 item">'
+								+ '<h1 id="current-data">' + 'Data: ' + node.data + '</h1>'
+								+ '<h1 id="next-data">' + 'Next: ' + node.next.data + '</h1>'
+								+ '<h1 id="previous-data">' + 'Previous: ' + node.previous.data + '</h1>'
+								+ '<div class="line-container">'
+									+ '<div class="line-link" id="down">'
+										+ '<div class="arrow-down"></div>'
+									+ '</div>'
+									+ '<div class="line-link" id="up">'
+										+ '<div class="arrow-up"></div>'
+									+ '</div>'
+								+ '</div>'
+							+ '</div>';
+					} else if (node.next == null) {
+						return '<div class="col-lg-12 col-md-12 col-sm-12 item">'
+								+ '<h1 id="current-data">' + 'Data: ' + node.data + '</h1>'
+								+ '<h1 id="next-data">' + 'Next: ' + ' Null' + '</h1>'
+								+ '<h1 id="previous-data">' + 'Previous: ' + node.previous.data + '</h1>'
+								+ '<div class="line-container">'
+									+ '<div class="line-link" id="down">'
+										+ '<div class="arrow-down"></div>'
+									+ '</div>'
+									+ '<div class="line-link" id="up">'
+										+ '<div class="arrow-up"></div>'
+									+ '</div>'
+								+ '</div>'
+							+ '</div>';
+					} else if (node.previous == null) {
+						return '<div class="col-lg-12 col-md-12 col-sm-12 item">'
+								+ '<h1 id="current-data">' + 'Data: ' + node.data + '</h1>'
+								+ '<h1 id="next-data">' + 'Next: ' + node.next.data + '</h1>'
+								+ '<h1 id="previous-data">' + 'Previous: ' + ' Null' + '</h1>'
+								+ '<div class="line-container">'
+									+ '<div class="line-link" id="down">'
+										+ '<div class="arrow-down"></div>'
+									+ '</div>'
+									+ '<div class="line-link" id="up">'
+										+ '<div class="arrow-up"></div>'
+									+ '</div>'
+								+ '</div>'
+							+ '</div>';
+					}
+				},
+				render: function () {
+					if (this.head == null) {
+						return;
+					}
+					var $target = $('#items');
+					$target.empty();
+
+					var current = new Object(this.head);
+					while (current != null) {
+
+						var item = this.template(current);
+
+						$target.append(item);
+
+						current = current.next;
+					}
+
+				},
+				debug: function () {
+					var current = new Object(this.head);
+
+					while (current != null) {
+						console.log(current);
+						current = current.next;
+					}
+				}
+			}
+
+			var firstNode = {
+				data: "First Node",
+				next: null,
+				previous: null
+			};
+
+			var secondNode = {
+				data: "Second Node",
+				next: null,
+				previous: null
+			};
+
+			var thirdNode = {
+				data: "Third Node",
+				next: null,
+				previous: null
+			};
+
+			var fourthNode = {
+				data: "Fourth Node",
+				next: null,
+				previous: null
+			};
+
+			var fifthNode = {
+				data: "Fifth Node",
+				next: null,
+				previous: null
+			};
+
+			doublyLinkedList.addFirst(firstNode);
+			doublyLinkedList.addLast(thirdNode);
+			doublyLinkedList.addFirst(secondNode);
+			doublyLinkedList.addBefore(firstNode, fourthNode);
+			doublyLinkedList.addAfter(secondNode, fifthNode);
+			doublyLinkedList.remove(firstNode);
+
+			renderer.head = doublyLinkedList.head;
+			renderer.debug();
+			renderer.render();
+
+			$('#reset').click(function () {
+				renderer.head = doublyLinkedList.head;
+				renderer.render();
+			});
+
+			window.linkedList = doublyLinkedList;
+			console.log(window.linkedList)
+		});
+	</script>
+</body>
+</html>
